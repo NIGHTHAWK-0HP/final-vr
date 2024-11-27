@@ -136,19 +136,24 @@ public class AIController : MonoBehaviour
     
     void RotateTowardsTarget()
     {
-        if (target == null) return; // หากไม่มีเป้าหมาย ไม่ต้องหันหน้า
+        if (target == null) return; // หากไม่มีเป้าหมาย ไม่ต้องหมุน
     
         // คำนวณทิศทางไปยังเป้าหมาย
-        Vector3 directionToTarget = (target.position - transform.position).normalized;
+        Vector3 directionToTarget = target.position - transform.position;
     
-        // ลบแกน Y เพื่อป้องกันการเอียง
+        // ลบแกน Y เพื่อป้องกันการเอียงขึ้น/ลง
         directionToTarget.y = 0;
     
-        // คำนวณการหมุนใหม่
-        Quaternion lookRotation = Quaternion.LookRotation(directionToTarget);
+        // ตรวจสอบว่ามีทิศทางที่ชัดเจน
+        if (directionToTarget.sqrMagnitude > 0.01f)
+        {
+            // คำนวณการหมุนใหม่
+            Quaternion lookRotation = Quaternion.LookRotation(directionToTarget);
     
-        // ปรับการหมุนอย่างนุ่มนวล
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+            // ปรับการหมุนอย่างนุ่มนวล
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+        }
     }
+
 
 }
