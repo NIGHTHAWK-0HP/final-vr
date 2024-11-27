@@ -74,14 +74,24 @@ public class AIController : MonoBehaviour
 
     void FollowTarget()
     {
-        // เคลื่อนที่ไปยังเป้าหมาย
-        Vector3 direction = (lastPlayerPosition - transform.position).normalized; // ใช้ตำแหน่งล่าสุดของผู้เล่น
-        transform.position += direction * followSpeed * Time.deltaTime;
+        if (target == null) return;
 
-        // หมุนหน้าไปทางเป้าหมาย
-        Quaternion lookRotation = Quaternion.LookRotation(direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+        Vector3 direction = (lastPlayerPosition - transform.position).normalized;
+
+        // ตรวจสอบสิ่งกีดขวางด้วย Raycast
+        if (!Physics.Raycast(transform.position, direction, Vector3.Distance(transform.position, lastPlayerPosition), obstacleLayer))
+        {
+            transform.position += direction * followSpeed * Time.deltaTime;
+
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+        }
+        else
+        {
+            Debug.Log("Path to target obstructed by Props");
+        }
     }
+
 
     void StopMoving()
     {
@@ -91,30 +101,36 @@ public class AIController : MonoBehaviour
 
     void RandomWalk()
     {
-        // หากถึงเวลาที่ต้องเปลี่ยนตำแหน่งใหม่
         if (Time.time >= randomWalkTimer)
         {
-            // สุ่มตำแหน่งในระยะที่กำหนด
-            Vector2 randomCircle = Random.insideUnitCircle * randomWalkRadius;
-            randomDestination = new Vector3(
-                transform.position.x + randomCircle.x,
-                transform.position.y,
-                transform.position.z + randomCircle.y
-            );
+            for (int i = 0; i < 10; i++) // ลองสุ่มจุดหมายปลายทางไม่เกิน 10 ครั้ง
+            {
+                Vector2 randomCircle = Random.insideUnitCircle * randomWalkRadius;
+                Vector3 potentialDestination = new Vector3(
+                    transform.position.x + randomCircle.x,
+                    transform.position.y,
+                    transform.position.z + randomCircle.y
+                );
 
-            // ตั้งเวลาใหม่สำหรับการเดินครั้งต่อไป
-            randomWalkTimer = Time.time + randomWalkDelay;
+                // ตรวจสอบด้วย Raycast เพื่อดูว่ามีสิ่งกีดขวางใน Layer Props หรือไม่
+                if (!Physics.Raycast(transform.position, (potentialDestination - transform.position).normalized,
+                        Vector3.Distance(transform.position, potentialDestination), obstacleLayer))
+                {
+                    randomDestination = potentialDestination; // ใช้ตำแหน่งที่ผ่านเงื่อนไข
+                    break;
+                }
+            }
+
+            randomWalkTimer = Time.time + randomWalkDelay; // ตั้งเวลาใหม่
         }
 
         // เดินไปยังตำแหน่งสุ่ม
         Vector3 direction = (randomDestination - transform.position).normalized;
-        transform.position += direction * (followSpeed * 0.5f) * Time.deltaTime; // ลดความเร็วลงเล็กน้อย
+        transform.position += direction * (followSpeed * 0.5f) * Time.deltaTime;
 
-        // หมุนหน้าไปทางจุดหมาย
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
 
-        // หยุดเมื่อถึงจุดหมายปลายทาง
         if (Vector3.Distance(transform.position, randomDestination) < 0.5f)
         {
             Debug.Log("Random destination reached");
