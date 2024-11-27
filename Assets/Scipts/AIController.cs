@@ -39,7 +39,6 @@ public class AIController : MonoBehaviour
         }
     }
 
-
     void FindTarget()
     {
         // ค้นหา Collider ทั้งหมดในระยะที่กำหนด
@@ -78,6 +77,9 @@ public class AIController : MonoBehaviour
 
         Vector3 direction = (lastPlayerPosition - transform.position).normalized;
 
+        // ปรับตำแหน่งให้คงที่ในแกน Y (ไม่ให้บินขึ้น/ลง)
+        direction.y = 0;
+
         // ตรวจสอบสิ่งกีดขวางด้วย Raycast
         if (!Physics.Raycast(transform.position, direction, Vector3.Distance(transform.position, lastPlayerPosition), obstacleLayer))
         {
@@ -91,7 +93,6 @@ public class AIController : MonoBehaviour
             Debug.Log("Path to target obstructed by Props");
         }
     }
-
 
     void StopMoving()
     {
@@ -108,7 +109,7 @@ public class AIController : MonoBehaviour
                 Vector2 randomCircle = Random.insideUnitCircle * randomWalkRadius;
                 Vector3 potentialDestination = new Vector3(
                     transform.position.x + randomCircle.x,
-                    transform.position.y,
+                    transform.position.y, // คงที่ตำแหน่ง Y เพื่อป้องกันการบิน
                     transform.position.z + randomCircle.y
                 );
 
@@ -126,6 +127,10 @@ public class AIController : MonoBehaviour
 
         // เดินไปยังตำแหน่งสุ่ม
         Vector3 direction = (randomDestination - transform.position).normalized;
+
+        // คงที่ Y ระหว่างการเดิน
+        direction.y = 0;
+
         transform.position += direction * (followSpeed * 0.5f) * Time.deltaTime;
 
         Quaternion lookRotation = Quaternion.LookRotation(direction);
@@ -133,7 +138,7 @@ public class AIController : MonoBehaviour
 
         if (Vector3.Distance(transform.position, randomDestination) < 0.5f)
         {
-            Debug.Log("Random destination reached");
+            //Debug.Log("Random destination reached");
         }
     }
 
@@ -172,6 +177,4 @@ public class AIController : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
         }
     }
-
-
 }

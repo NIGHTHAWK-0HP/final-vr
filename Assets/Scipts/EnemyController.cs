@@ -12,9 +12,14 @@ public class EnemyController : MonoBehaviour
     private float currentHealth;
     private float lastAttackTime;
 
+    private AudioSource audioSource; // AudioSource component
+    private Vector3 lastPosition; // ตัวแปรเก็บตำแหน่งก่อนหน้า
+
     private void Start()
     {
         currentHealth = maxHealth; // ตั้งค่า HP เริ่มต้น
+        audioSource = GetComponent<AudioSource>(); // หาคอมโพเนนต์ AudioSource
+        lastPosition = transform.position; // เก็บตำแหน่งเริ่มต้น
     }
 
     public void TakeDamage(float damage)
@@ -37,6 +42,7 @@ public class EnemyController : MonoBehaviour
     private void Update()
     {
         FindAndAttackPlayer();
+        HandleMovementAudio(); // เรียกใช้ฟังก์ชันตรวจสอบการเคลื่อนไหว
     }
 
     private void FindAndAttackPlayer()
@@ -64,6 +70,28 @@ public class EnemyController : MonoBehaviour
         {
             player.TakeDamage(attackDamage); // ลด HP ของผู้เล่น
         }
+    }
+
+    private void HandleMovementAudio()
+    {
+        // ตรวจสอบว่าตำแหน่งปัจจุบันต่างจากตำแหน่งก่อนหน้าหรือไม่
+        if (transform.position != lastPosition)
+        {
+            if (!audioSource.isPlaying) // ถ้าเสียงยังไม่เล่น
+            {
+                audioSource.Play(); // เล่นเสียง
+            }
+        }
+        else
+        {
+            if (audioSource.isPlaying) // ถ้าเสียงกำลังเล่น
+            {
+                audioSource.Stop(); // หยุดเสียง
+            }
+        }
+
+        // อัพเดตตำแหน่งก่อนหน้า
+        lastPosition = transform.position;
     }
 
     private void OnDrawGizmosSelected()
