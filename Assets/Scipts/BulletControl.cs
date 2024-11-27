@@ -5,12 +5,12 @@ using UnityEngine;
 
 public class BulletControl : MonoBehaviour
 {
-    public float speed = 50;
+    public float speed = 50f;
     public float lifetime = 1f;
+    public float damage = 50f; // ความเสียหายของกระสุน
     private Rigidbody rb;
-    
-    // Start is called before the first frame update
-    void Start()
+
+    private void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.velocity = transform.forward * speed;
@@ -19,10 +19,14 @@ public class BulletControl : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.CompareTag("Target"))
+        if (collision.collider.CompareTag("Enemy"))
         {
-            Destroy(collision.gameObject);
-            Destroy(gameObject);
+            // ตรวจสอบว่าศัตรูมีคอมโพเนนต์ EnemyController หรือไม่
+            if (collision.collider.TryGetComponent(out EnemyController enemy))
+            {
+                enemy.TakeDamage(damage); // ลด HP ของศัตรู
+            }
+            Destroy(gameObject); // ทำลายกระสุน
         }
     }
 }
