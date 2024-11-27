@@ -5,7 +5,7 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     public float maxHealth = 100f; // HP สูงสุดของศัตรู
-    public float attackDamage = 20f; // ความเสียหายจากการโจมตี
+    public float attackDamage = 50f; // ความเสียหายจากการโจมตี
     public float attackRange = 2f; // ระยะโจมตี
     public float attackCooldown = 1.5f; // เวลา cooldown ระหว่างการโจมตี
     public string targetTag = "Player"; // แท็กของเป้าหมาย

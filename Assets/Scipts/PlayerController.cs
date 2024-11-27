@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -55,10 +56,13 @@ public class PlayerController : MonoBehaviour
             Die();
         }
     }
-
+    private void RestartScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
     private void Die()
     {
         Debug.Log("Player has died.");
-        // จัดการเมื่อผู้เล่นตาย เช่น Restart Level หรือแสดง Game Over
+        RestartScene();
     }
 }
